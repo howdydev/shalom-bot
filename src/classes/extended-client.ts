@@ -52,12 +52,17 @@ export default class ExtendedClient extends Client {
   public async init(): Promise<void> {
     await this.database.$connect();
 
-    await this.loadCommands();
-    this.loadEvents();
-    this.login();
+    this.login().then(async () => {
+      try {
+        await this.loadCommands();
+        this.loadEvents();
 
-    config.triviaEnabled && this.trivia.init();
-    config.kickWatchEnabled && this.kick.init();
+        config.triviaEnabled && this.trivia.init();
+        config.kickWatchEnabled && this.kick.init();
+      } catch (error) {
+        console.error(`Error in init: ${error}`);
+      }
+    });
   }
 
   public async deathmatchChallenge(
