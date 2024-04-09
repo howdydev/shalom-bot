@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import "advanced-logs";
 import ExtendedClient from "./classes/extended-client";
+import "./keep_alive";
 
 config();
 const client = new ExtendedClient();
