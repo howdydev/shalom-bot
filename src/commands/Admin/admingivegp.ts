@@ -10,8 +10,8 @@ import { formatNumber } from "../../utils";
 
 export const command: CommandType = {
   builder: new SlashCommandBuilder()
-    .setName("givegp")
-    .setDescription("Give a user some GP")
+    .setName("adminsetgp")
+    .setDescription("Give a user some GP (Admin only)")
     .addUserOption((option) =>
       option
         .setName("user")
