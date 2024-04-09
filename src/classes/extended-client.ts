@@ -183,6 +183,8 @@ export default class ExtendedClient extends Client {
       `Loaded ${loadedCommands.length} commands: ${loadedCommands.join(", ")}`
     );
 
+    this.postCommands();
+
     return this;
   }
 
