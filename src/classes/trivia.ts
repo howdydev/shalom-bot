@@ -17,9 +17,12 @@ export default class TriviaGenerator {
   }
 
   public async init() {
+    console.info("Trivia: Initializing");
     await this.fetchAllQuestions();
+    console.success(`Trivia: Loaded ${this.questions.length} questions`);
     this.shuffleQuestions();
     this.startGeneratingQuestions();
+    this.isReady = true;
   }
 
   private async fetchAllQuestions() {
