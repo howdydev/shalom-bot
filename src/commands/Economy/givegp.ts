@@ -54,7 +54,7 @@ export const command: CommandType = {
           target.id
         }> <:gp:1171046821137760309> ${formatNumber(
           amount
-        )}. Their balance is now <:gp:1171046821137760309> ${formatNumber(
+        )}. Your balance is now <:gp:1171046821137760309> ${formatNumber(
           +success
         )}`
       );
