@@ -11,6 +11,7 @@ export const command: CommandType = {
     .setName("slayertask")
     .setDescription("Set out on a slayer task"),
   run: async (client, interaction) => {
+    await interaction.deferReply();
     if (!client.members.isReady)
       return interaction.editReply(
         "The bot is still starting up, try again in a few minutes."
@@ -35,7 +36,7 @@ export const command: CommandType = {
     }, 60000);
 
     if (currentTask)
-      return interaction.reply({
+      return interaction.editReply({
         content: `You have already been assigned to kill x${
           currentTask.amount
         } ${currentTask.name} by ${
@@ -43,7 +44,6 @@ export const command: CommandType = {
         }. It will be completed at <t:${Math.round(
           currentTask.finishedAt.getTime() / 1000
         )}:f>`,
-        ephemeral: true,
       });
 
     const level = XPToLevel(member.slayerExperience);
