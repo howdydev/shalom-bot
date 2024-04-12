@@ -11,8 +11,6 @@ export const command: CommandType = {
     .setName("slayertask")
     .setDescription("Set out on a slayer task"),
   run: async (client, interaction) => {
-    await interaction.deferReply();
-
     if (!client.members.isReady)
       return interaction.editReply(
         "The bot is still starting up, try again in a few minutes."
@@ -31,20 +29,22 @@ export const command: CommandType = {
 
     const currentTask = await client.members.getTask(interaction.user.id);
     cooldown.add(interaction.user.id);
+
     setTimeout(() => {
       cooldown.delete(interaction.user.id);
     }, 60000);
+
     if (currentTask)
-      return interaction.editReply(
-        `You have already been assigned to kill x${currentTask.amount} ${
-          currentTask.name
-        } by ${
+      return interaction.reply({
+        content: `You have already been assigned to kill x${
+          currentTask.amount
+        } ${currentTask.name} by ${
           currentTask.taskMaster
-        }. It's estimated to take you ${formatTimeDifferenceWithWords(
-          currentTask.finishedAt,
-          new Date()
-        )} to complete.`
-      );
+        }. It will be completed at <t:${Math.round(
+          currentTask.finishedAt.getTime() / 1000
+        )}:f>`,
+        ephemeral: true,
+      });
 
     const level = XPToLevel(member.slayerExperience);
     const task = fetchTask(level, "Duradel");
@@ -56,24 +56,24 @@ export const command: CommandType = {
       minutes: format(task.finishedAt, "mm"),
     };
 
-    const timeToFinish = `${
-      +timeTaken.hours > 0 ? `${timeTaken.hours} hours ` : ""
-    } ${+timeTaken.minutes > 0 ? `and ${timeTaken.minutes} minutes` : ""}`;
-
     const embed = new EmbedBuilder()
       .setColor("Random")
       .setTitle(`New slayer task`)
       .setTimestamp()
       .setThumbnail("https://oldschool.runescape.wiki/images/Duradel.png?426c8")
       .setDescription(
-        `Duradel has assigned you a new slayer task. It is estimated to take you about ${formatTimeDifferenceWithWords(
-          task.finishedAt,
-          new Date()
-        )} to complete`
+        `Duradel has assigned you a new slayer task. It is estimated to take you about <t:${Math.round(
+          task.finishedAt.getTime() / 1000
+        )}:R> to complete`
       )
       .addFields(
         { name: "Slayer Monster", value: task.name, inline: true },
         { name: "Amount", value: task.amount.toString(), inline: true },
+        {
+          name: "Completed At",
+          value: `<t:${Math.round(task.finishedAt.getTime() / 1000)}:f>`,
+          inline: true,
+        },
         {
           name: "Slayer Level",
           value: `Your slayer level is currently **${level}**`,

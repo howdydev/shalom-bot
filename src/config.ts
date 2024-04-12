@@ -3,8 +3,10 @@ const config = {
   triviaEnabled: true,
   kickWatchEnabled: false,
   channels: {
-    TRIVIA: process.env.TRIVIA_CHANNEL_ID as string,
-    SLAYER_TASKS: process.env.SLAYER_TASKS_CHANNEL_ID as string,
+    TRIVIA: "1225975390070378586",
+    SLAYER_TASKS: "1225975418545373195",
+    // TRIVIA: "1227282138387320904", // dev
+    // SLAYER_TASKS: "1227282163456540772", // dev
   },
 } as const;
 

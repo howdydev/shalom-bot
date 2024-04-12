@@ -52,6 +52,8 @@ export default class ExtendedClient extends Client {
   public async init(): Promise<void> {
     await this.database.$connect();
 
+    console.log(config.guildId);
+
     this.login().then(async () => {
       try {
         await this.loadCommands();
@@ -135,7 +137,9 @@ export default class ExtendedClient extends Client {
 
   public postCommands(): ExtendedClient {
     const rest = new REST({ version: "10" }).setToken(
-      process.env.DISCORD_TOKEN!
+      process.env.NODE_ENV === "development"
+        ? process.env.DISCORD_DEV_TOKEN!
+        : process.env.DISCORD_TOKEN!
     );
     console.info("Started refreshing application (/) commands.");
 
