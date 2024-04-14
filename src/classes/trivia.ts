@@ -49,7 +49,7 @@ export default class TriviaGenerator {
     }
 
     this.generateQuestion();
-    setInterval(this.generateQuestion.bind(this), 15 * 60 * 1000);
+    setInterval(this.generateQuestion.bind(this), 20 * 60 * 1000);
     // setInterval(this.generateQuestion.bind(this), 30000);
   }
 
@@ -58,7 +58,7 @@ export default class TriviaGenerator {
     const selectedQuestion = this.questions.shift() as TriviaQuestion;
     this.questions.push(selectedQuestion);
     this.currentQuestion = selectedQuestion;
-    this.reward = Math.floor(Math.random() * 40000) + 10000;
+    this.reward = Math.floor(Math.random() * 100000) + 10000;
     this.currentAnswers = selectedQuestion.answer.split(", ");
     await this.sendTriviaQuestionToChannel(
       selectedQuestion.question,
