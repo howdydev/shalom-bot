@@ -33,7 +33,7 @@ export function fetchTask(
       const amount = Math.floor(
         Math.random() * (task.amount[1] - task.amount[0] + 1) + task.amount[0]
       );
-      const ttk = task.timeToKill * 1000;
+      const ttk = Math.round((task.timeToKill * 1000) / 2);
       const timeAdded = ttk * amount;
 
       return {
