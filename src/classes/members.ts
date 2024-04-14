@@ -1,10 +1,11 @@
-import { User, SlayerTask as Task } from "@prisma/client";
+import { User, SlayerTask as Task, SlayerOptions } from "@prisma/client";
 import ExtendedClient from "./extended-client";
 import { SlayerTask } from "../types/slayer";
 import { EmbedBuilder, TextChannel } from "discord.js";
 import { XPToLevel, formatNumber } from "../utils";
 import config from "../config";
 import { getTaskData } from "../systems/slayer/tasks";
+import { fetchTask } from "../systems/slayer/task";
 
 const TIME_TO_CHECK_SLAYER_TASKS = 120 * 1000; // 2 minutes.
 
@@ -13,6 +14,7 @@ export default class Members {
   public members: User[]; // Array of all members
   public slayerTasks: Task[]; // Array of all slayer tasks
   private ready: boolean; // Flag indicating whether the members have been fetched
+  private slayerSettings: Map<string, SlayerOptions> = new Map();
 
   /**
    * Constructor for the Members class.
@@ -37,21 +39,73 @@ export default class Members {
       const members = await this.client.database.user.findMany({
         include: {
           task: true,
+          slayer: true,
         },
       });
 
       this.members = members;
       this.ready = true;
 
-      members.forEach((member) => {
+      // Ensure members have slayer settings
+      for (const member of members) {
+        if (!member.slayer)
+          await this.client.database.slayerOptions.create({
+            data: {
+              user: {
+                connect: {
+                  id: member.id,
+                },
+              },
+              userId: member.id,
+            },
+          });
+      }
+
+      for (const member of members) {
         if (member.task) this.slayerTasks.push(member.task);
-      });
+        this.slayerSettings.set(member.discordId, member.slayer! ?? []);
+      }
 
       setTimeout(() => {
         this.checkSlayerTasks();
       }, 10000);
     } catch (error) {
       console.error("Error fetching registered members", error);
+    }
+  }
+
+  /**
+   * Gets the users slayer settings
+   * @param discordId
+   * @returns
+   */
+  public getSlayerSettings(discordId: string): SlayerOptions | null {
+    return this.slayerSettings.get(discordId) ?? null;
+  }
+
+  public async setSlayerSettings(
+    discordId: string,
+    settings: Partial<SlayerOptions>
+  ) {
+    try {
+      const member = this.getMemberData(discordId);
+      if (!member || !member.slayerId) return false;
+
+      const updated = await this.client.database.slayerOptions.update({
+        where: {
+          id: member.slayerId,
+        },
+        data: {
+          ...settings,
+        },
+      });
+
+      this.slayerSettings.set(discordId, updated);
+
+      return updated;
+    } catch (error) {
+      console.error(`Error setting slayer settings`, error);
+      return false;
     }
   }
 
@@ -191,6 +245,13 @@ export default class Members {
               }
             );
 
+          let newTask;
+
+          if (this.slayerSettings.get(member.discordId)?.afkSlayer) {
+            const level = XPToLevel(member.slayerExperience);
+            newTask = fetchTask(level, "Duradel");
+          }
+
           const guild = await this.client.guilds.fetch(config.guildId);
           const channel = guild.channels.cache.get(
             config.channels.SLAYER_TASKS
@@ -200,7 +261,36 @@ export default class Members {
               "Failed to find channel to send slayer task completion message. Text channel could not be found"
             );
 
-          channel.send({ embeds: [embed] });
+          await channel.send({ embeds: [embed] });
+
+          if (newTask) {
+            const taskEmbed = new EmbedBuilder()
+              .setColor("Random")
+              .setTitle(`New slayer task`)
+              .setTimestamp()
+              .setThumbnail(
+                "https://oldschool.runescape.wiki/images/Duradel.png?426c8"
+              )
+              .setDescription(
+                `Duradel has assigned you a new slayer task. It is estimated to take you about <t:${Math.round(
+                  task.finishedAt.getTime() / 1000
+                )}:R> to complete. You have been assigned this task automatically since you purchased "AFK Slayer"`
+              )
+              .addFields(
+                { name: "Slayer Monster", value: task.name, inline: true },
+                { name: "Amount", value: task.amount.toString(), inline: true },
+                {
+                  name: "Completed At",
+                  value: `<t:${Math.round(
+                    task.finishedAt.getTime() / 1000
+                  )}:f>`,
+                  inline: true,
+                }
+              );
+
+            await this.assignSlayerTask(member.discordId, newTask);
+            await channel.send({ embeds: [taskEmbed] });
+          }
         }
       } catch (error) {
         console.error("Error checking slayer tasks", error);

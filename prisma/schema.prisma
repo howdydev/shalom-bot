@@ -15,15 +15,17 @@ datasource db {
 
 // Model for a Discord user for a discord bot
 model User {
-  id                      String      @id @default(cuid())
-  discordId               String      @unique
+  id                      String         @id @default(cuid())
+  discordId               String         @unique
   avatar                  String?
-  gp                      Int         @default(0)
+  gp                      Int            @default(0)
   rsn                     String?
-  task                    SlayerTask? @relation(fields: [taskId], references: [id])
+  task                    SlayerTask?    @relation(fields: [taskId], references: [id])
   taskId                  String?
-  slayerExperience        Int         @default(0)
-  canCreateTriviaQuestion Boolean     @default(true)
+  slayer                  SlayerOptions? @relation(fields: [slayerId], references: [id])
+  slayerId                Int?
+  slayerExperience        Int            @default(0)
+  canCreateTriviaQuestion Boolean        @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,6 +40,13 @@ model LiveUser {
   createdAt DateTime @default(now())
 }
 
+model SlayerOptions {
+  id        Int     @id @default(autoincrement())
+  afkSlayer Boolean @default(false)
+  user      User[]
+  userId    String
+}
+
 model SlayerTask {
   id String @id @default(cuid())
 
@@ -47,10 +56,12 @@ model SlayerTask {
   experience Int
 
   user   User[]
-  userId String
+  userId String @unique
 
   createdAt  DateTime @default(now())
   finishedAt DateTime
+
+  @@index([userId])
 }
 
 model TriviaQuestion {
