@@ -101,7 +101,7 @@ export default class TriviaGenerator {
     const embed = new EmbedBuilder()
       .setTitle("Trivia")
       .setDescription(
-        `A new trivia is active, you have 15 minutes to answer the question correctly.`
+        `A new trivia is active, you have 25 minutes to answer the question correctly.`
       )
       .addFields({ name: "Question", value: question })
       .setThumbnail(
