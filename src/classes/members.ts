@@ -272,17 +272,23 @@ export default class Members {
                 "https://oldschool.runescape.wiki/images/Duradel.png?426c8"
               )
               .setDescription(
-                `Duradel has assigned you a new slayer task. It is estimated to take you about <t:${Math.round(
-                  task.finishedAt.getTime() / 1000
+                `Shalom <@${
+                  user.discordId
+                }>, Duradel has assigned you a new slayer task. It is estimated to take you about <t:${Math.round(
+                  newTask.finishedAt.getTime() / 1000
                 )}:R> to complete. You have been assigned this task automatically since you purchased "AFK Slayer"`
               )
               .addFields(
-                { name: "Slayer Monster", value: task.name, inline: true },
-                { name: "Amount", value: task.amount.toString(), inline: true },
+                { name: "Slayer Monster", value: newTask.name, inline: true },
+                {
+                  name: "Amount",
+                  value: newTask.amount.toString(),
+                  inline: true,
+                },
                 {
                   name: "Completed At",
                   value: `<t:${Math.round(
-                    task.finishedAt.getTime() / 1000
+                    newTask.finishedAt.getTime() / 1000
                   )}:f>`,
                   inline: true,
                 }
