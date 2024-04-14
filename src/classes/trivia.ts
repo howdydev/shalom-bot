@@ -49,7 +49,7 @@ export default class TriviaGenerator {
     }
 
     this.generateQuestion();
-    setInterval(this.generateQuestion.bind(this), 20 * 60 * 1000);
+    setInterval(this.generateQuestion.bind(this), 25 * 60 * 1000);
     // setInterval(this.generateQuestion.bind(this), 30000);
   }
 
