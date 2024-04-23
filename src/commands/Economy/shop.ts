@@ -1,188 +1,265 @@
 import {
-  ActionRowBuilder,
-  ComponentType,
-  SlashCommandBuilder,
-  StringSelectMenuBuilder,
-  StringSelectMenuOptionBuilder,
+	ActionRowBuilder,
+	ComponentType,
+	SlashCommandBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { CommandType } from "../../types/command";
 import { formatNumber } from "../../utils";
+import TaskList from "../../systems/slayer/tasks";
 
 const busy: Map<string, boolean> = new Map();
 
+enum ShopPrices {
+	AFK_SLAYER = 300000000,
+	SLAUGHTER = 750000,
+	EXPEDITIOUS = 800000,
+}
+
 const shop_options = [
-  // {
-  //   id: "extend-slayer-task",
-  //   label: "Extend Slayer Task (50%)",
-  //   description: "I will extend your current slayer task by 50%",
-  //   price: 100000,
-  //   value: "extend-task-50",
-  // },
-  // {
-  //   id: "extend-slayer-task",
-  //   label: "Extend Slayer Task (100%)",
-  //   description: "I will extend your current slayer task by 100%",
-  //   price: 180000,
-  //   value: "extend-task-100",
-  // },
-  // {
-  //   id: "skip-slayer-task",
-  //   description:
-  //     "I will skip your current slayer task. You will recieve no gp or xp for this task",
-  //   label: "Skip Slayer Task",
-  //   value: "skip-task",
-  //   price: 75000,
-  // },
-  {
-    id: "afk-slayer",
-    description:
-      "I will continuously give you slayer tasks one after the other",
-    label: "AFK Slayer",
-    value: "afk-slayer",
-    price: 300000000,
-  },
+	{
+		id: "afk-slayer",
+		description:
+			"I will continuously give you slayer tasks one after the other",
+		label: "AFK Slayer",
+		value: "afk-slayer",
+		price: ShopPrices.AFK_SLAYER,
+	},
+	{
+		id: "slaughter",
+		description:
+			"You wear a bracelet of slaughter on your current slayer task to increase the amount you kill",
+		label: "Bracelet of Slaughter",
+		value: "slaughter",
+		price: ShopPrices.SLAUGHTER,
+	},
+	// {
+	// 	id: "expeditious",
+	// 	description:
+	// 		"You wear an expeditious bracelet on your current slayer task to reduce the amount you kill",
+	// 	label: "Bracelet of Expeditious",
+	// 	value: "expeditious",
+	// 	price: ShopPrices.EXPEDITIOUS,
+	// },
 ];
 
 export const command: CommandType = {
-  builder: new SlashCommandBuilder()
-    .setName("shop")
-    .setDescription("View the shop"),
-  run: async (client, interaction) => {
-    const member = client.members.getMemberData(interaction.user.id);
-    if (!member) {
-      return interaction.reply({
-        content: "You must register before you can use the shop `/register`",
-        ephemeral: true,
-      });
-    }
+	builder: new SlashCommandBuilder()
+		.setName("shop")
+		.setDescription("View the shop"),
+	run: async (client, interaction) => {
+		const member = client.members.getMemberData(interaction.user.id);
+		if (!member) {
+			return interaction.reply({
+				content:
+					"You must register before you can use the shop `/register`",
+				ephemeral: true,
+			});
+		}
 
-    const options: StringSelectMenuOptionBuilder[] = [];
+		const options: StringSelectMenuOptionBuilder[] = [];
 
-    for (const option of shop_options) {
-      options.push(
-        new StringSelectMenuOptionBuilder()
-          .setLabel(`${option.label} (${formatNumber(option.price)})`)
-          .setDescription(option.description)
-          .setValue(option.value)
-      );
-    }
+		for (const option of shop_options) {
+			options.push(
+				new StringSelectMenuOptionBuilder()
+					.setLabel(`${option.label} (${formatNumber(option.price)})`)
+					.setDescription(option.description)
+					.setValue(option.value)
+			);
+		}
 
-    const select = new StringSelectMenuBuilder()
-      .setCustomId(interaction.id)
-      .setPlaceholder("Open the shop")
-      .addOptions(...options);
+		const select = new StringSelectMenuBuilder()
+			.setCustomId(interaction.id)
+			.setPlaceholder("Open the shop")
+			.addOptions(...options);
 
-    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-      select
-    );
+		const row =
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				select
+			);
 
-    const reply = await interaction.reply({
-      content: "Welcome to the shop!",
-      components: [row],
-      ephemeral: true,
-    });
+		const reply = await interaction.reply({
+			content: "Welcome to the shop!",
+			components: [row],
+			ephemeral: true,
+		});
 
-    const collector = reply.createMessageComponentCollector({
-      componentType: ComponentType.StringSelect,
-      filter: (i) =>
-        i.user.id === interaction.user.id && i.customId === interaction.id,
-    });
+		const collector = reply.createMessageComponentCollector({
+			componentType: ComponentType.StringSelect,
+			filter: (i) =>
+				i.user.id === interaction.user.id &&
+				i.customId === interaction.id,
+		});
 
-    const deleteOptions = async () => {
-      await reply.delete();
-    };
+		const updateReply = async (msg?: string) =>
+			await interaction.editReply({ content: msg, components: [] });
 
-    collector.on("collect", async (interaction) => {
-      switch (interaction?.values[0]) {
-        case "extend-task-50":
-          interaction.reply({
-            content: "This feature is not yet implemented",
-            ephemeral: true,
-          });
-          break;
-        case "extend-task-100":
-          interaction.reply({
-            content: "This feature is not yet implemented",
-            ephemeral: true,
-          });
-          break;
-        case "skip-task":
-          interaction.reply({
-            content: "This feature is not yet implemented",
-            ephemeral: true,
-          });
-          break;
-        case "afk-slayer":
-          const settings = client.members.getSlayerSettings(
-            interaction.user.id
-          );
+		collector.on("collect", async (interaction) => {
+			switch (interaction?.values[0]) {
+				case "expeditious":
+					await updateReply("This feature is not yet implemented");
+					break;
+				case "slaughter":
+					const currentTask = client.members.slayerTasks.find(
+						(u) => u.userId === member.id
+					);
 
-          if (!settings) {
-            interaction.reply({
-              content:
-                "Could not find any settings for your profile, please try again later.",
-              ephemeral: true,
-            });
-            await deleteOptions();
-            break;
-          }
+					if (!currentTask) {
+						await updateReply("You have no current slayer task");
+						break;
+					}
 
-          if (settings.afkSlayer) {
-            interaction.reply({
-              content: "You have already purchased this from me",
-              ephemeral: true,
-            });
-            await deleteOptions();
-            break;
-          }
+					if (currentTask.shopModified) {
+						await updateReply(
+							"You are already wearing a slaughter or expeditious bracelet for this task. Try again next task."
+						);
+						break;
+					}
 
-          busy.set(interaction.user.id, true);
-          if (
-            !(await client.members.removeGP(interaction.user.id, 300000000))
-          ) {
-            interaction.reply({
-              content: "You do not have enough GP to purchase this",
-              ephemeral: true,
-            });
-            busy.set(interaction.user.id, false);
-            await deleteOptions();
-            break;
-          }
+					const monsterValues = TaskList["Duradel"]?.find(
+						(m) => m.name === currentTask.name
+					);
+					if (!monsterValues) {
+						await updateReply(
+							"Could not find monster values for current task"
+						);
+						break;
+					}
 
-          busy.set(interaction.user.id, true);
-          const result = await client.members.setSlayerSettings(
-            member.discordId,
-            {
-              afkSlayer: true,
-            }
-          );
+					const removedGP = await client.members.removeGP(
+						member.discordId,
+						ShopPrices.SLAUGHTER
+					);
 
-          if (!result) {
-            interaction.reply({
-              content:
-                "I was unable to purchase this for you, please try back later or report the problem.",
-              ephemeral: true,
-            });
+					if (!removedGP) {
+						await updateReply(
+							"You do not have enough GP to purchase this"
+						);
+						break;
+					}
 
-            await client.members.addGP(member.discordId, 300000000);
-          } else {
-            interaction.reply({
-              content:
-                "Purchase successful. I will now reassign you slayer tasks as soon as they've been completed.",
-              ephemeral: true,
-            });
-          }
+					const currentAmount = currentTask.amount;
+					const currentTtk = monsterValues.timeToKill;
 
-          busy.set(interaction.user.id, false);
-          await deleteOptions();
-          break;
-        default:
-          interaction.reply({
-            content: "An unknown error occurred. Please try again later",
-            ephemeral: true,
-          });
-          break;
-      }
-    });
-  },
+					const { amount, timeAdded } = getSlaughterValues(
+						currentAmount,
+						currentTtk
+					);
+
+					const newFinishedAt = new Date(
+						currentTask.finishedAt.getTime() + timeAdded
+					);
+
+					await client.database.slayerTask.update({
+						where: {
+							id: currentTask.id,
+						},
+						data: {
+							amount,
+							finishedAt: newFinishedAt,
+						},
+					});
+
+					await client.members.updateSlayerTask(currentTask.id, {
+						shopModified: true,
+						amount,
+						finishedAt: newFinishedAt,
+					});
+
+					await updateReply(
+						`Purchase successful. You are now slaughtering your task. It should now be finished at <t:${Math.round(
+							newFinishedAt.getTime() / 1000
+						)}:f>`
+					);
+
+					break;
+				case "afk-slayer":
+					const settings = client.members.getSlayerSettings(
+						interaction.user.id
+					);
+
+					if (!settings) {
+						await updateReply(
+							"Could not find any settings for your profile, please try again later."
+						);
+						break;
+					}
+
+					if (settings.afkSlayer) {
+						await updateReply(
+							"You have already purchased this from me"
+						);
+						break;
+					}
+
+					busy.set(interaction.user.id, true);
+					if (
+						!(await client.members.removeGP(
+							interaction.user.id,
+							300000000
+						))
+					) {
+						busy.set(interaction.user.id, false);
+						await updateReply(
+							"You do not have enough GP to purchase this"
+						);
+						break;
+					}
+
+					busy.set(interaction.user.id, true);
+					const result = await client.members.setSlayerSettings(
+						member.discordId,
+						{
+							afkSlayer: true,
+						}
+					);
+
+					if (!result) {
+						interaction.reply({
+							content:
+								"I was unable to purchase this for you, please try back later or report the problem.",
+							ephemeral: true,
+						});
+
+						await client.members.addGP(
+							member.discordId,
+							ShopPrices.AFK_SLAYER
+						);
+					} else {
+						interaction.reply({
+							content:
+								"Purchase successful. I will now reassign you slayer tasks as soon as they've been completed.",
+							ephemeral: true,
+						});
+					}
+
+					busy.set(interaction.user.id, false);
+					await updateReply();
+					break;
+				default:
+					interaction.reply({
+						content:
+							"An unknown error occurred. Please try again later",
+						ephemeral: true,
+					});
+					break;
+			}
+		});
+	},
 };
+
+function getSlaughterValues(amount: number, ttk: number) {
+	let addedAmount = 0;
+
+	for (let i = 0; i < amount; i++) {
+		if (Math.random() < 0.25) {
+			addedAmount++;
+		}
+	}
+
+	return {
+		amount: amount + addedAmount,
+		timeAdded: Math.round((ttk * 1000 * addedAmount) / 2),
+	};
+}

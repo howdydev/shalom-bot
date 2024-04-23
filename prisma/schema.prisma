@@ -24,7 +24,9 @@ model User {
   taskId                  String?
   slayer                  SlayerOptions? @relation(fields: [slayerId], references: [id])
   slayerId                Int?
+  previousTask            String?
   slayerExperience        Int            @default(0)
+  tasksCompleted          Int            @default(0)
   canCreateTriviaQuestion Boolean        @default(true)
 
   createdAt DateTime @default(now())
@@ -50,10 +52,11 @@ model SlayerOptions {
 model SlayerTask {
   id String @id @default(cuid())
 
-  name       String
-  amount     Int
-  taskMaster String
-  experience Int
+  name         String
+  amount       Int
+  taskMaster   String
+  experience   Int
+  shopModified Boolean @default(false)
 
   user   User[]
   userId String @unique
