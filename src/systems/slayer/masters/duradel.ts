@@ -418,7 +418,7 @@ const DuradelTasks: SlayerMasterTask[] = [
 	},
 	{
 		name: "Black Demons (Skotizo)",
-		amount: [3, 50],
+		amount: [30, 120],
 		levelRequirement: 1,
 		weight: 2,
 		hitpoints: 618,
@@ -427,7 +427,7 @@ const DuradelTasks: SlayerMasterTask[] = [
 	},
 	{
 		name: "Abyssal Demons (Abyssal Sire)",
-		amount: [3, 50],
+		amount: [30, 120],
 		levelRequirement: 85,
 		weight: 2,
 		hitpoints: 650,
@@ -436,7 +436,7 @@ const DuradelTasks: SlayerMasterTask[] = [
 	},
 	{
 		name: "Cerberus",
-		amount: [3, 50],
+		amount: [30, 120],
 		levelRequirement: 91,
 		weight: 2,
 		hitpoints: 690,
@@ -445,12 +445,21 @@ const DuradelTasks: SlayerMasterTask[] = [
 	},
 	{
 		name: "Alchemical Hydra",
-		amount: [3, 50],
+		amount: [30, 120],
 		levelRequirement: 95,
 		weight: 2,
 		hitpoints: 1320,
 		timeToKill: 250,
 		averageGpPerKill: 185633,
+	},
+	{
+		name: "Duradel",
+		amount: [1, 5],
+		levelRequirement: 99,
+		weight: 2,
+		hitpoints: 100000,
+		timeToKill: 1000,
+		averageGpPerKill: 7500000,
 	},
 ] as const;
 

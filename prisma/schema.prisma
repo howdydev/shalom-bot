@@ -45,8 +45,13 @@ model LiveUser {
 model SlayerOptions {
   id        Int     @id @default(autoincrement())
   afkSlayer Boolean @default(false)
-  user      User[]
-  userId    String
+
+  // upgrades
+  bonusXP Int @default(0)
+  bonusGP Int @default(0)
+
+  user   User[]
+  userId String
 }
 
 model SlayerTask {

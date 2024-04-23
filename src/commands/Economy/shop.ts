@@ -15,6 +15,7 @@ enum ShopPrices {
 	AFK_SLAYER = 300000000,
 	SLAUGHTER = 750000,
 	EXPEDITIOUS = 800000,
+	BONUS_GP = 10000000,
 }
 
 const shop_options = [
@@ -33,6 +34,13 @@ const shop_options = [
 		label: "Bracelet of Slaughter",
 		value: "slaughter",
 		price: ShopPrices.SLAUGHTER,
+	},
+	{
+		id: "bonus-gp",
+		description: `Permanent additional bonus 10% GP per task completed. Max purchase (10)`,
+		label: "Bonus GP (10%)",
+		value: "bonus-gp",
+		price: ShopPrices.BONUS_GP,
 	},
 	// {
 	// 	id: "expeditious",
@@ -95,11 +103,59 @@ export const command: CommandType = {
 		const updateReply = async (msg?: string) =>
 			await interaction.editReply({ content: msg, components: [] });
 
+		const slayerSettings = client.members.getSlayerSettings(
+			interaction.user.id
+		);
+
 		collector.on("collect", async (interaction) => {
 			switch (interaction?.values[0]) {
 				case "expeditious":
 					await updateReply("This feature is not yet implemented");
 					break;
+				case "bonus-gp":
+					if (
+						slayerSettings?.bonusGP &&
+						slayerSettings?.bonusGP >= 100
+					) {
+						await updateReply(
+							"You already have the maximum amount of bonus GP (100%)"
+						);
+						break;
+					}
+
+					const purchased = await client.members.removeGP(
+						member.discordId,
+						ShopPrices.BONUS_GP
+					);
+
+					if (!purchased) {
+						await updateReply(
+							"You do not have enough GP to purchase this"
+						);
+						break;
+					}
+
+					const updatedSettings =
+						await client.members.setSlayerSettings(
+							member.discordId,
+							{
+								bonusGP: slayerSettings?.bonusGP ?? 0 + 10,
+							}
+						);
+
+					if (!updatedSettings) {
+						await updateReply(
+							"An unknown error occurred. Please try again later"
+						);
+						break;
+					}
+
+					await updateReply(
+						`Purchase successful. You now have ${updatedSettings.bonusGP}% bonus GP`
+					);
+
+					break;
+
 				case "slaughter":
 					const currentTask = client.members.slayerTasks.find(
 						(u) => u.userId === member.id

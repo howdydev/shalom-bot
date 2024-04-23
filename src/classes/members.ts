@@ -196,6 +196,15 @@ export default class Members {
 					});
 
 					let goldEarned = Math.floor(task.experience * 3);
+					const slayerSettings = this.getSlayerSettings(
+						member.discordId
+					);
+
+					if (slayerSettings?.bonusGP && slayerSettings.bonusGP > 0) {
+						goldEarned += Math.floor(
+							(task.experience * slayerSettings.bonusGP) / 100
+						);
+					}
 
 					const taskData = getTaskData(task.taskMaster, task.name);
 
