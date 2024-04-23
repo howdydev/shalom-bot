@@ -150,6 +150,9 @@ export const command: CommandType = {
 					const newFinishedAt = new Date(
 						currentTask.finishedAt.getTime() + timeAdded
 					);
+					const experience = Math.floor(
+						monsterValues.hitpoints * amount
+					);
 
 					await client.database.slayerTask.update({
 						where: {
@@ -158,6 +161,7 @@ export const command: CommandType = {
 						data: {
 							amount,
 							finishedAt: newFinishedAt,
+							experience,
 						},
 					});
 
