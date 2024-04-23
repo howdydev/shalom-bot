@@ -135,11 +135,14 @@ export const command: CommandType = {
 						break;
 					}
 
+					const currentBonus = slayerSettings?.bonusGP ?? 0;
+					const newBonus = currentBonus + 10;
+
 					const updatedSettings =
 						await client.members.setSlayerSettings(
 							member.discordId,
 							{
-								bonusGP: slayerSettings?.bonusGP ?? 0 + 10,
+								bonusGP: newBonus,
 							}
 						);
 
