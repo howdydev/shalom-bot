@@ -212,11 +212,12 @@ export default class Members {
 							task
 						);
 					}
+					let additionalGold = 0;
 
 					if (slayerSettings?.bonusGP && slayerSettings.bonusGP > 0) {
-						const additional =
+						additionalGold =
 							goldEarned * (slayerSettings.bonusGP / 100);
-						goldEarned = Math.floor(goldEarned + additional);
+						goldEarned = Math.floor(goldEarned + additionalGold);
 					}
 
 					await this.addGP(user.discordId, goldEarned);
@@ -288,6 +289,13 @@ export default class Members {
 								name: "Total Tasks Completed",
 								value: member.tasksCompleted.toLocaleString(),
 								inline: true,
+							},
+							additionalGold > 0 && {
+								name: "Bonus Gold",
+								value: `You earned a total of <:gp:1171046821137760309> ${formatNumber(
+									additionalGold
+								)} bonus GP from this task.`,
+								inline: false,
 							}
 						);
 
