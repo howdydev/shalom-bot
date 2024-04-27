@@ -295,7 +295,7 @@ export default class Members {
 								value:
 									additionalGold > 0
 										? `You earned a total of <:gp:1171046821137760309> ${formatNumber(
-												additionalGold
+												Math.floor(additionalGold)
 										  )} bonus GP from this task.`
 										: "You did not earn any bonus GP from this task.",
 								inline: false,
