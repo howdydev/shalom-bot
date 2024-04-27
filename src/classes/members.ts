@@ -200,12 +200,6 @@ export default class Members {
 						member.discordId
 					);
 
-					if (slayerSettings?.bonusGP && slayerSettings.bonusGP > 0) {
-						goldEarned += Math.floor(
-							(task.experience * slayerSettings.bonusGP) / 100
-						);
-					}
-
 					const taskData = getTaskData(task.taskMaster, task.name);
 
 					if (taskData) {
@@ -217,6 +211,12 @@ export default class Members {
 							"Failed to find task data for slayer task",
 							task
 						);
+					}
+
+					if (slayerSettings?.bonusGP && slayerSettings.bonusGP > 0) {
+						const additional =
+							goldEarned * (slayerSettings.bonusGP / 100);
+						goldEarned = Math.floor(goldEarned + additional);
 					}
 
 					await this.addGP(user.discordId, goldEarned);
