@@ -290,11 +290,14 @@ export default class Members {
 								value: member.tasksCompleted.toLocaleString(),
 								inline: true,
 							},
-							additionalGold > 0 && {
+							{
 								name: "Bonus Gold",
-								value: `You earned a total of <:gp:1171046821137760309> ${formatNumber(
-									additionalGold
-								)} bonus GP from this task.`,
+								value:
+									additionalGold > 0
+										? `You earned a total of <:gp:1171046821137760309> ${formatNumber(
+												additionalGold
+										  )} bonus GP from this task.`
+										: "You did not earn any bonus GP from this task.",
 								inline: false,
 							}
 						);
