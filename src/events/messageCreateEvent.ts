@@ -51,7 +51,7 @@ export const event: EventType = {
 				);
 
 				if (!answersToLowercase.includes(answer.toLowerCase())) {
-					client.trivia.addGuess(answer, userId);
+					client.trivia.addGuess(answer, message.author.username);
 					return;
 				}
 
@@ -68,7 +68,7 @@ export const event: EventType = {
 								)
 								.addFields(
 									guesses.map(([guess, user]) => ({
-										name: `<@${user}>`,
+										name: `${user}`,
 										value: `${guess}`,
 										inline: true,
 									}))
