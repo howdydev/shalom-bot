@@ -88,7 +88,9 @@ export const command: CommandType = {
 			);
 
 		const reply = await interaction.reply({
-			content: "Welcome to the shop!",
+			content: `Welcome to the shop! You have <:gp:1171046821137760309> ${formatNumber(
+				member.gp
+			)} GP`,
 			components: [row],
 			ephemeral: true,
 		});

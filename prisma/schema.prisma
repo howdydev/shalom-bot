@@ -28,6 +28,7 @@ model User {
   slayerExperience        Int            @default(0)
   tasksCompleted          Int            @default(0)
   canCreateTriviaQuestion Boolean        @default(true)
+  triviaWins              Int            @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

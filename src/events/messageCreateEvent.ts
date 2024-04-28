@@ -81,6 +81,19 @@ export const event: EventType = {
 
 				if (embed) await channel.send({ embeds: [embed] });
 
+				await client.database.user.update({
+					where: {
+						discordId: userId,
+					},
+					data: {
+						triviaWins: {
+							increment: 1,
+						},
+					},
+				});
+
+				member.triviaWins++;
+
 				client.trivia.endTrivia();
 				client.members.addGP(userId, client.trivia.reward);
 			}
