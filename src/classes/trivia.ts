@@ -58,7 +58,7 @@ export default class TriviaGenerator {
 		}
 
 		this.generateQuestion();
-		setInterval(this.generateQuestion.bind(this), 25 * 60 * 1000);
+		setInterval(this.generateQuestion.bind(this), 60 * 60 * 1000);
 	}
 
 	public async generateQuestion() {
@@ -111,7 +111,7 @@ export default class TriviaGenerator {
 		const embed = new EmbedBuilder()
 			.setTitle("Trivia")
 			.setDescription(
-				`A new trivia is active, you have 25 minutes to answer the question correctly.`
+				`A new trivia is active, you have 60 minutes to answer the question correctly.`
 			)
 			.addFields({ name: "Question", value: question })
 			.setThumbnail(
