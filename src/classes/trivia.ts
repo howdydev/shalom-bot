@@ -63,6 +63,7 @@ export default class TriviaGenerator {
 
 	public async generateQuestion() {
 		await this.clearTriviaChannel();
+		this.endTrivia();
 		const selectedQuestion = this.questions.shift() as TriviaQuestion;
 
 		this.questions.push(selectedQuestion);
